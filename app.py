@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime
-import io
 
 # Page configuration
 st.set_page_config(
@@ -96,10 +94,10 @@ if df is not None and not df.empty:
     
     # Calculate key metrics
     # Payments received (Payment Received = Yes)
-    payments_received = df_filtered[df_filtered['Payment Received'].str.upper() == 'YES']['Amount'].sum()
+    payments_received = df_filtered[df_filtered['Payment Received'].fillna('').str.upper() == 'YES']['Amount'].sum()
     
     # Outstanding AR (Payment Received = No)
-    outstanding_ar = df_filtered[df_filtered['Payment Received'].str.upper() == 'NO']['Amount'].sum()
+    outstanding_ar = df_filtered[df_filtered['Payment Received'].fillna('').str.upper() == 'NO']['Amount'].sum()
     
     # Progress percentage
     progress_percentage = (payments_received / yearly_goal * 100) if yearly_goal > 0 else 0
@@ -123,7 +121,7 @@ if df is not None and not df.empty:
         st.metric(
             "Outstanding AR",
             f"${outstanding_ar:,.2f}",
-            delta=f"{len(df_filtered[df_filtered['Payment Received'].str.upper() == 'NO'])} invoices"
+            delta=f"{len(df_filtered[df_filtered['Payment Received'].fillna('').str.upper() == 'NO'])} invoices"
         )
     
     with col3:
@@ -185,7 +183,7 @@ if df is not None and not df.empty:
     
     # Extract month from Payment Received Date for payments received
     df_payments = df_filtered[
-        (df_filtered['Payment Received'].str.upper() == 'YES') & 
+        (df_filtered['Payment Received'].fillna('').str.upper() == 'YES') & 
         (df_filtered['Payment Received Date'].notna())
     ].copy()
     
@@ -256,7 +254,7 @@ if df is not None and not df.empty:
     # Accounts Receivable details
     st.header("📋 Outstanding Accounts Receivable")
     
-    df_outstanding = df_filtered[df_filtered['Payment Received'].str.upper() == 'NO'].copy()
+    df_outstanding = df_filtered[df_filtered['Payment Received'].fillna('').str.upper() == 'NO'].copy()
     
     if not df_outstanding.empty:
         # Display AR summary
